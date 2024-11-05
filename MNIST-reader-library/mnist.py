@@ -55,8 +55,9 @@ def one_hot_encode(Y):
     return encoded_Y
 
 
-# 60K labels, each with value 1 if the digit is a five, and 0 otherwise
-Y_train = encode_fives(load_labels("../data/mnist/train-labels-idx1-ubyte.gz"))
+# 60K labels, each a single digit from 0 to 9
+Y_train_unencoded = load_labels("../data/mnist/train-labels-idx1-ubyte.gz")
 
-# 10000 labels, with the same encoding as Y_train
-Y_test = encode_fives(load_labels("../data/mnist/t10k-labels-idx1-ubyte.gz"))
+Y_train = one_hot_encode(Y_train_unencoded)
+# 10000 labels, each a single digit from 0 to 9
+Y_test = load_labels("../data/mnist/t10k-labels-idx1-ubyte.gz")
