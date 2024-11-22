@@ -14,7 +14,9 @@ def forward(X, w):
 
 # Calling the predict() function
 def classify(X, w):
-    return np.round(forward(X, w))
+    y_hat = forward(X, w)
+    labels = np.argmax(y_hat, axis=1)
+    return labels.reshape(-1, 1)
 
 
 # Computing Loss over using logistic regression
