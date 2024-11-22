@@ -1,6 +1,5 @@
-# A binary classifier that recognizes one of the digits in MNIST.
-
 import numpy as np
+import mnist as data
 
 # Applying Logistic Regression
 def sigmoid(z):
@@ -18,36 +17,35 @@ def classify(X, w):
     labels = np.argmax(y_hat, axis=1)
     return labels.reshape(-1, 1)
 
-
 # Computing Loss over using logistic regression
 def loss(X, Y, w):
     y_hat = forward(X, w)
     first_term = Y * np.log(y_hat)
     second_term = (1 - Y) * np.log(1 - y_hat)
-    return -np.average(first_term + second_term)
-
+    return -np.sum(first_term + second_term) / X.shape[0]
 
 # calculating gradient
 def gradient(X, Y, w):
     return np.matmul(X.T, (forward(X, w) - Y)) / X.shape[0]
 
+# Printing results to the terminal screen
+def report(iteration, X_train, Y_train, X_test, Y_test, w):
+    matches = np.count_nonzero(classify(X_test, w) == Y_test)
+    n_test_examples = Y_test.shape[0]
+    matches = matches * 100.0 / n_test_examples
+    training_loss = loss(X_train, Y_train, w)
+    if (iteration%20 == 0) or iteration == 199:
+        print("%d - Loss: %.20f, %.2f%%" % (iteration, training_loss, matches))
+
 # calling the training function for desired no. of iterations
-def train(X, Y, iterations, lr):
-    w = np.zeros((X.shape[1], 1))
+def train(X_train, Y_train, X_test, Y_test, iterations, lr):
+    w = np.zeros((X_train.shape[1], Y_train.shape[1]))
     for i in range(iterations):
-        print('Iteration %4d => Loss: %.20f' % (i, loss(X, Y, w)))
-        w -= gradient(X, Y, w) * lr
+        report(i, X_train, Y_train, X_test, Y_test, w)
+        w -= gradient(X_train, Y_train, w) * lr
+    report(iterations, X_train, Y_train, X_test, Y_test, w)
     return w
 
-# Doing inference to test our model
-def test(X, Y, w):
-    total_examples = X.shape[0]
-    correct_results = np.sum(classify(X, w) == Y)
-    success_percent = correct_results * 100 / total_examples
-    print("\nSuccess: %d/%d (%.2f%%)" %
-          (correct_results, total_examples, success_percent))
-
-# Test it
-import mnist as data
-w = train(data.X_train, data.Y_train, iterations=100, lr=1e-5)
-test(data.X_test, data.Y_test, w)
+w = train(data.X_train, data.Y_train,
+          data.X_test, data.Y_test,
+          iterations=200, lr=1e-5)
