@@ -1,4 +1,4 @@
-# An MNIST loader.
+# A MNIST loader.
 
 import numpy as np
 import gzip
